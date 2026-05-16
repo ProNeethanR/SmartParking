@@ -118,10 +118,12 @@ export const getState = () => state;
 
 const uid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
+const BASE_URL = "http://localhost:5000";
+
 export const actions = {
   async init() {
     try {
-      const res = await fetch('/api/state');
+      const res = await fetch(`${BASE_URL}/api/state`);
       if (res.ok) {
         const data = await res.json();
         set(data);
@@ -133,7 +135,7 @@ export const actions = {
 
   async registerAndAllot(input: { owner_name: string; plate_number: string; vehicle_type: VehicleType; special_category?: string }) {
     try {
-      const res = await fetch('/api/register_and_allot', {
+      const res = await fetch(`${BASE_URL}/api/register_and_allot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input)
@@ -149,7 +151,7 @@ export const actions = {
 
   async payNow(payment_id: string, method: string) {
     try {
-      await fetch('/api/pay', {
+      await fetch(`${BASE_URL}/api/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payment_id, method })
@@ -162,7 +164,7 @@ export const actions = {
 
   async endSession(session_id: string) {
     try {
-      await fetch('/api/end_session', {
+      await fetch(`${BASE_URL}/api/end_session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id })
