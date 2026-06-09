@@ -175,6 +175,22 @@ export const actions = {
     }
   },
 
+  async scanAndRegister(input: { owner_name: string; plate_number: string; vehicle_type: string; special_category?: string }) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/scan_register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input)
+      });
+      const data = await res.json();
+      if (data.error) return { error: data.error };
+      await this.init();
+      return data;
+    } catch (e) {
+      return { error: 'Failed to connect to backend.' };
+    }
+  },
+
   adminLogin(username: string, password: string) {
     if (username === ADMIN_USER && password === ADMIN_PASS) {
       set({ adminLoggedIn: true });

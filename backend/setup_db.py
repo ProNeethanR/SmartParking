@@ -23,9 +23,8 @@ def setup_database():
     cursor = connection.cursor()
 
     try:
-        # Create database
-        cursor.execute("CREATE DATABASE IF NOT EXISTS smart_parking;")
-        cursor.execute("USE smart_parking;")
+        # Use the default database specified in the connection (railway)
+        pass
 
         # Drop tables if they exist to start fresh
         tables = [
@@ -106,7 +105,7 @@ def setup_database():
             payment_id INT AUTO_INCREMENT PRIMARY KEY,
             session_id INT,
             amount DECIMAL(10, 2) NOT NULL,
-            payment_method ENUM('Cash', 'Card', 'UPI') NOT NULL,
+            payment_method ENUM('Cash', 'Card', 'UPI') NULL,
             payment_status ENUM('Pending', 'Paid') DEFAULT 'Pending',
             FOREIGN KEY (session_id) REFERENCES Parking_Sessions(session_id) ON DELETE CASCADE
         );

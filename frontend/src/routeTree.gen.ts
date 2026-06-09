@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZonesRouteImport } from './routes/zones'
 import { Route as SessionRouteImport } from './routes/session'
+import { Route as ScanRouteImport } from './routes/scan'
 import { Route as RatesRouteImport } from './routes/rates'
 import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as NotificationsRouteImport } from './routes/notifications'
@@ -26,6 +27,11 @@ const ZonesRoute = ZonesRouteImport.update({
 const SessionRoute = SessionRouteImport.update({
   id: '/session',
   path: '/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanRoute = ScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RatesRoute = RatesRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof NotificationsRoute
   '/payment': typeof PaymentRoute
   '/rates': typeof RatesRoute
+  '/scan': typeof ScanRoute
   '/session': typeof SessionRoute
   '/zones': typeof ZonesRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof NotificationsRoute
   '/payment': typeof PaymentRoute
   '/rates': typeof RatesRoute
+  '/scan': typeof ScanRoute
   '/session': typeof SessionRoute
   '/zones': typeof ZonesRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/notifications': typeof NotificationsRoute
   '/payment': typeof PaymentRoute
   '/rates': typeof RatesRoute
+  '/scan': typeof ScanRoute
   '/session': typeof SessionRoute
   '/zones': typeof ZonesRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/payment'
     | '/rates'
+    | '/scan'
     | '/session'
     | '/zones'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/payment'
     | '/rates'
+    | '/scan'
     | '/session'
     | '/zones'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/payment'
     | '/rates'
+    | '/scan'
     | '/session'
     | '/zones'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   NotificationsRoute: typeof NotificationsRoute
   PaymentRoute: typeof PaymentRoute
   RatesRoute: typeof RatesRoute
+  ScanRoute: typeof ScanRoute
   SessionRoute: typeof SessionRoute
   ZonesRoute: typeof ZonesRoute
 }
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/session'
       fullPath: '/session'
       preLoaderRoute: typeof SessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan': {
+      id: '/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof ScanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rates': {
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotificationsRoute: NotificationsRoute,
   PaymentRoute: PaymentRoute,
   RatesRoute: RatesRoute,
+  ScanRoute: ScanRoute,
   SessionRoute: SessionRoute,
   ZonesRoute: ZonesRoute,
 }

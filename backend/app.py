@@ -102,13 +102,25 @@ def register_and_allot():
         
         if not slot: return jsonify({"error": "No slots available in the requested zone."})
 
-        # Insert Owner
-        cursor.execute("INSERT INTO Owners (owner_name, special_category) VALUES (%s, %s)", (data.get('owner_name'), data.get('special_category', 'None')))
-        owner_id = cursor.lastrowid
+        # Check if vehicle already exists
+        cursor.execute("SELECT * FROM Vehicles WHERE plate_number = %s", (data.get('plate_number'),))
+        vehicle = cursor.fetchone()
         
-        # Insert Vehicle
-        cursor.execute("INSERT INTO Vehicles (plate_number, vehicle_type, owner_id) VALUES (%s, %s, %s)", (data.get('plate_number'), '2-wheeler' if target_cat == '2-wheeler' else '4-wheeler', owner_id))
-        vehicle_id = cursor.lastrowid
+        if vehicle:
+            vehicle_id = vehicle['vehicle_id']
+            # Check for active session
+            cursor.execute("SELECT * FROM Parking_Sessions WHERE vehicle_id = %s AND status = 'Active'", (vehicle_id,))
+            active_sess = cursor.fetchone()
+            if active_sess:
+                return jsonify({"error": f"Vehicle {data.get('plate_number')} already has an active parking session."})
+        else:
+            # Insert Owner
+            cursor.execute("INSERT INTO Owners (owner_name, special_category) VALUES (%s, %s)", (data.get('owner_name'), data.get('special_category', 'None')))
+            owner_id = cursor.lastrowid
+            
+            # Insert Vehicle
+            cursor.execute("INSERT INTO Vehicles (plate_number, vehicle_type, owner_id) VALUES (%s, %s, %s)", (data.get('plate_number'), '2-wheeler' if target_cat == '2-wheeler' else '4-wheeler', owner_id))
+            vehicle_id = cursor.lastrowid
 
         # Occupy Slot
         cursor.execute("UPDATE Parking_Slots SET status = 'Occupied' WHERE slot_id = %s", (slot['slot_id'],))
@@ -121,7 +133,7 @@ def register_and_allot():
         cursor.execute("SELECT hourly_rate FROM Parking_Rates WHERE vehicle_type = %s", (target_cat,))
         rate = cursor.fetchone()
         amount = rate['hourly_rate'] if rate else 20
-        cursor.execute("INSERT INTO Payments (session_id, amount, payment_method, payment_status) VALUES (%s, %s, 'Pending', 'Pending')", (session_id, amount))
+        cursor.execute("INSERT INTO Payments (session_id, amount, payment_method, payment_status) VALUES (%s, %s, NULL, 'Pending')", (session_id, amount))
         payment_id = cursor.lastrowid
 
         # Notification
@@ -134,6 +146,9 @@ def register_and_allot():
             "session": {"session_id": str(session_id)},
             "payment": {"payment_id": str(payment_id)}
         })
+    except Exception as e:
+        print(f"Error in register_and_allot: {e}")
+        return jsonify({"error": f"Registration failed: {str(e)}"}), 500
     finally:
         cursor.close()
         conn.close()
@@ -173,6 +188,84 @@ def pay():
         cursor.execute("UPDATE Payments SET payment_method = %s, payment_status = 'Paid' WHERE payment_id = %s", (data.get('method'), data.get('payment_id')))
         conn.commit()
         return jsonify({"success": True})
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/scan_register', methods=['POST'])
+def scan_register():
+    """Register a vehicle via QR code scan. Same logic as register_and_allot
+       but tagged as a QR scan for future extensibility."""
+    data = request.json
+    conn = get_db_connection()
+    if not conn: return jsonify({"error": "DB connection failed"}), 500
+    try:
+        cursor = conn.cursor(dictionary=True)
+        # Find a slot
+        cursor.execute("SELECT * FROM Parking_Slots WHERE status = 'Available'")
+        available = cursor.fetchall()
+        slot = None
+        target_cat = data.get('vehicle_type', '4-wheeler')
+        for s in available:
+            cat = s['slot_category'].lower()
+            if cat == 'regular':
+                cursor.execute("SELECT vehicle_type FROM Parking_Zones WHERE zone_id = %s", (s['zone_id'],))
+                z = cursor.fetchone()
+                cat = z['vehicle_type'].lower() if z else '4-wheeler'
+            if cat == target_cat:
+                slot = s
+                break
+        
+        if not slot: return jsonify({"error": "No slots available in the requested zone."})
+
+        # Check if vehicle already exists
+        cursor.execute("SELECT * FROM Vehicles WHERE plate_number = %s", (data.get('plate_number'),))
+        vehicle = cursor.fetchone()
+        
+        if vehicle:
+            vehicle_id = vehicle['vehicle_id']
+            # Check for active session
+            cursor.execute("SELECT * FROM Parking_Sessions WHERE vehicle_id = %s AND status = 'Active'", (vehicle_id,))
+            active_sess = cursor.fetchone()
+            if active_sess:
+                return jsonify({"error": f"Vehicle {data.get('plate_number')} already has an active parking session."})
+        else:
+            # Insert Owner
+            cursor.execute("INSERT INTO Owners (owner_name, special_category) VALUES (%s, %s)", (data.get('owner_name'), data.get('special_category', 'None')))
+            owner_id = cursor.lastrowid
+            
+            # Insert Vehicle
+            cursor.execute("INSERT INTO Vehicles (plate_number, vehicle_type, owner_id) VALUES (%s, %s, %s)", (data.get('plate_number'), '2-wheeler' if target_cat == '2-wheeler' else '4-wheeler', owner_id))
+            vehicle_id = cursor.lastrowid
+
+        # Occupy Slot
+        cursor.execute("UPDATE Parking_Slots SET status = 'Occupied' WHERE slot_id = %s", (slot['slot_id'],))
+        
+        # Session
+        cursor.execute("INSERT INTO Parking_Sessions (vehicle_id, slot_id, status) VALUES (%s, %s, 'Active')", (vehicle_id, slot['slot_id']))
+        session_id = cursor.lastrowid
+        
+        # Payment waiting
+        cursor.execute("SELECT hourly_rate FROM Parking_Rates WHERE vehicle_type = %s", (target_cat,))
+        rate = cursor.fetchone()
+        amount = rate['hourly_rate'] if rate else 20
+        cursor.execute("INSERT INTO Payments (session_id, amount, payment_method, payment_status) VALUES (%s, %s, NULL, 'Pending')", (session_id, amount))
+        payment_id = cursor.lastrowid
+
+        # Notification — tagged as QR scan
+        cursor.execute("INSERT INTO Notifications (vehicle_id, message) VALUES (%s, %s)", (vehicle_id, f"[QR Scan] Slot {slot['slot_id']} allotted to {data.get('plate_number')}."))
+
+        conn.commit()
+        return jsonify({
+            "slot": {"slot_id": str(slot['slot_id'])},
+            "vehicle": {"vehicle_id": str(vehicle_id)},
+            "session": {"session_id": str(session_id)},
+            "payment": {"payment_id": str(payment_id)},
+            "scan_source": "qr"
+        })
+    except Exception as e:
+        print(f"Error in scan_register: {e}")
+        return jsonify({"error": f"Registration failed: {str(e)}"}), 500
     finally:
         cursor.close()
         conn.close()

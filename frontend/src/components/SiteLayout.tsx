@@ -1,9 +1,10 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
-import { Car, Bell, CreditCard, ListChecks, MapPin, ShieldCheck, Tag, History } from "lucide-react";
+import { Car, Bell, CreditCard, ListChecks, MapPin, ShieldCheck, Tag, History, ScanLine } from "lucide-react";
 import { useStore } from "@/lib/parking-store";
 
 const nav = [
   { to: "/", label: "Register", icon: Car },
+  { to: "/scan", label: "Scan QR", icon: ScanLine },
   { to: "/zones", label: "Zones", icon: MapPin },
   { to: "/rates", label: "Rates", icon: Tag },
   { to: "/session", label: "Session", icon: ListChecks },
