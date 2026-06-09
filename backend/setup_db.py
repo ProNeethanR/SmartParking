@@ -3,12 +3,14 @@ from mysql.connector import Error
 
 def create_connection():
     try:
-        connection = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password=''
-        )
-        return connection
+      connection = mysql.connector.connect(
+    host='switchyard.proxy.rlwy.net',
+    user='root',
+    password='bgQrMwxAbuVqFCdWKisSbTVyaYjBpxeK',
+    database='railway',
+    port=11862
+)
+      return connection
     except Error as e:
         print(f"Error while connecting to MySQL: {e}")
         return None

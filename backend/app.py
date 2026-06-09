@@ -8,7 +8,13 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 def get_db_connection():
     try:
-        return mysql.connector.connect(host='localhost', user='root', password='', database='smart_parking')
+        return mysql.connector.connect(
+            host='switchyard.proxy.rlwy.net',
+            user='root',
+            password='bgQrMwxAbuVqFCdWKisSbTVyaYjBpxeK',
+            database='railway',
+            port=11862
+        )
     except Error as e:
         print(f"DB Error: {e}")
         return None
