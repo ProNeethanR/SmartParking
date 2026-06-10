@@ -207,4 +207,5 @@ export const actions = {
 };
 
 
-export const ADMIN_HINT = `Use ${ADMIN_USER} / ${ADMIN_PASS}`;
+// Remove exposing admin credentials in UI
+export const ADMIN_HINT = "";

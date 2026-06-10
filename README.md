@@ -1,53 +1,79 @@
-# Smart Parking System
+# 🚗 Smart Parking Management System
 
-A full-stack smart parking management system with a **React (TanStack)** frontend and a **Flask + MySQL** backend.
+A full-stack **Smart Parking Management System** that enables real-time parking slot allocation, vehicle tracking, and efficient parking operations using a modern web interface.
 
-## Project Structure
+Built using **React (Vite + TanStack)** for the frontend and **Flask + MySQL** for the backend.
+
+---
+
+## 📌 Features
+
+* 🚘 Vehicle Registration System
+* 🅿️ Real-Time Parking Slot Allocation
+* 📊 Live Parking Dashboard (Available / Occupied Slots)
+* 🔄 Session Management (Entry & Exit Tracking)
+* 💳 Payment Handling System
+* 📂 Centralized Database (10 Relational Tables)
+* 🔐 Admin Panel for Monitoring
+* 📷 QR Code-Based Identification *(Optional Enhancement)*
+
+---
+
+## 🧠 System Workflow
+
+```
+User → Register Vehicle → Allocate Slot → Start Session → Exit → Payment → Database Update
+```
+
+---
+
+## 🏗️ Project Structure
 
 ```
 SmartParking/
-├── backend/            # Python Flask API server
-│   ├── app.py          # Main Flask application with API endpoints
-│   ├── setup_db.py     # Database schema creation & seed data
+├── backend/            # Flask API server
+│   ├── app.py
+│   ├── setup_db.py
 │   └── requirements.txt
-├── frontend/           # React + TanStack frontend (Vite)
-│   ├── src/            # React components, routes, store
+├── frontend/           # React (Vite + TanStack)
+│   ├── src/
 │   ├── package.json
-│   ├── vite.config.ts  # Vite config with proxy to Flask backend
-│   └── tsconfig.json
+│   └── vite.config.ts
 └── README.md
 ```
 
-## Prerequisites
+---
 
-- **Python 3.8+**
-- **Node.js 18+** (with npm)
-- **MySQL** (running locally with user `root` and no password by default)
+## ⚙️ Tech Stack
 
-## How to Run
+| Layer    | Technology              |
+| -------- | ----------------------- |
+| Frontend | React, Vite, JavaScript |
+| Backend  | Python (Flask)          |
+| Database | MySQL                   |
+| API      | RESTful APIs            |
+| Tools    | VS Code, npm, XAMPP     |
 
-### Step 1: Set Up the Database
+---
+
+## 🛠️ Setup Instructions
+
+### 1️⃣ Backend Setup
 
 ```bash
 cd backend
 pip install -r requirements.txt
+pip install flask-cors  # if not installed
 python setup_db.py
-```
-
-This creates the `smart_parking` database with all tables and seed data.
-
-### Step 2: Start the Backend
-
-```bash
-cd backend
 python app.py
 ```
 
-The Flask server will start on **http://127.0.0.1:5000**.
+Server runs on:
+👉 http://127.0.0.1:5000
 
-### Step 3: Start the Frontend
+---
 
-Open a **new terminal**:
+### 2️⃣ Frontend Setup
 
 ```bash
 cd frontend
@@ -55,22 +81,83 @@ npm install
 npm run dev
 ```
 
-The Vite dev server will start (usually on **http://localhost:5173**) and automatically proxy `/api/*` requests to the Flask backend.
+Frontend runs on:
+👉 http://localhost:5173
 
-### Step 4: Open the App
+---
 
-Visit **http://localhost:5173** in your browser.
+## 🌐 API Endpoints
 
-## API Endpoints
+| Method | Endpoint                  | Description                    |
+| ------ | ------------------------- | ------------------------------ |
+| GET    | `/api/state`              | Fetch system state             |
+| POST   | `/api/register_and_allot` | Register vehicle & assign slot |
+| POST   | `/api/end_session`        | End parking session            |
+| POST   | `/api/pay`                | Process payment                |
 
-| Method | Endpoint                | Description                        |
-|--------|-------------------------|------------------------------------|
-| GET    | `/api/state`            | Get all parking data (sync state)  |
-| POST   | `/api/register_and_allot` | Register vehicle & assign slot   |
-| POST   | `/api/pay`              | Process a payment                  |
-| POST   | `/api/end_session`      | End a parking session              |
+---
 
-## Admin Login
+## 👨‍💼 Admin Access
 
-- **Username:** `admin`
-- **Password:** `admin123`
+* **Username:** `admin`
+* **Password:** `admin123`
+
+---
+
+## 🗄️ Database Design
+
+The system uses a **relational database with 10 normalized tables**, including:
+
+* Users
+* Vehicles
+* Parking Slots
+* Parking Sessions
+* Payments
+* Parking History
+
+Ensures:
+
+* Data integrity
+* No double booking
+* Efficient querying
+
+---
+
+## 📷 Screenshots (Add Here)
+
+> Add screenshots of:
+
+* Dashboard
+* Parking Slots Grid
+* Slot Allocation
+* Admin Panel
+
+---
+
+## 🚀 Future Enhancements
+
+* QR Code Entry/Exit System
+* License Plate Recognition (ANPR)
+* Mobile App Integration
+* Automated Gate Control
+
+---
+
+## 📄 License
+
+This project is for academic and educational purposes.
+
+---
+
+## 👥 Contributors
+
+* Navaneethan R
+* Kazim Raza
+* Abhinav Kumar
+* Vinay Madival
+
+---
+
+## ⭐ Acknowledgment
+
+This project demonstrates the application of full-stack development concepts in solving real-world parking management challenges.
